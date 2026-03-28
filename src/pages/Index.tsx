@@ -2,14 +2,13 @@ import React, { useState, useRef } from "react";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import DashboardBanner from "@/components/dashboard/DashboardBanner";
 import TabsNav, { TAB_LIST, TabKey } from "@/components/dashboard/TabsNav";
-import CountdownTimer from "@/components/dashboard/CountdownTimer";
 import ProgressSteps from "@/components/dashboard/ProgressSteps";
 import SidebarCard from "@/components/dashboard/SidebarCard";
 import PersonalInfoTab from "@/components/tabs/PersonalInfoTab";
-import ContactInfoTab from "@/components/tabs/ContactInfoTab";
+
 import EducationTab from "@/components/tabs/EducationTab";
 import InternalTestTab from "@/components/tabs/InternalTestTab";
-import CertificateTab from "@/components/tabs/CertificateTab";
+
 import { CalendarDays, FileText, Layers, ChevronRight } from "lucide-react";
 
 const deadline = new Date();
@@ -25,9 +24,8 @@ const stages = [
 ];
 
 const documents = [
-  "Скан паспорта",
+  "Сертификат об окончании школы",
   "Сертификат IELTS",
-  "Аттестат",
   "Видеопрезентация",
   "Справка о соц. статусе",
 ];
@@ -36,6 +34,16 @@ const Index: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabKey>("personal");
   const [activeNav, setActiveNav] = useState<"application" | "settings">("application");
   const [userEmail, setUserEmail] = useState<string>("");
+  const [direction, setDirection] = useState<string>(
+    "Креативная инженерия"
+  );
+  const directions = [
+    "Креативная инженерия",
+    "Инновационные цифровые продукты и сервисы",
+    "Социология инноваций и лидерства",
+    "Стратегии государственного управления и развития",
+    "Цифровые медиа и маркетинг",
+  ];
   const contentRef = useRef<HTMLDivElement>(null);
 
   const currentTabIndex = TAB_LIST.findIndex((t) => t.key === activeTab);
@@ -58,10 +66,8 @@ const Index: React.FC = () => {
   const renderTabContent = () => {
     switch (activeTab) {
       case "personal": return <PersonalInfoTab />;
-      case "contact": return <ContactInfoTab />;
       case "education": return <EducationTab />;
       case "test": return <InternalTestTab />;
-      case "certificate": return <CertificateTab />;
     }
   };
 
@@ -74,9 +80,18 @@ const Index: React.FC = () => {
 
         <div className="flex items-center gap-3">
           <h2 className="text-xl font-bold font-display text-foreground">Заявка</h2>
-          <span className="rounded-full bg-primary/15 text-primary-foreground px-3 py-1 text-xs font-semibold border border-primary/30" style={{ color: "hsl(72, 80%, 30%)" }}>
-            Компьютерные науки (бакалавриат)
-          </span>
+          <select
+            value={direction}
+            onChange={e => setDirection(e.target.value)}
+            className="rounded-full bg-primary/15 text-primary-foreground px-3 py-1 text-xs font-semibold border border-primary/30 focus:outline-none"
+            style={{ color: "hsl(72, 80%, 30%)" }}
+          >
+            {directions.map((dir) => (
+              <option key={dir} value={dir} className="text-foreground">
+                {dir}
+              </option>
+            ))}
+          </select>
         </div>
 
         <TabsNav activeTab={activeTab} onTabChange={handleTabChange} />
@@ -87,7 +102,7 @@ const Index: React.FC = () => {
           </div>
 
           <aside className="hidden lg:block w-80 shrink-0 sticky top-24 space-y-5">
-            <CountdownTimer deadline={deadline} />
+
 
             <SidebarCard title="Этапы заявки" icon={<Layers className="h-4 w-4" />}>
               <ProgressSteps steps={stages} />

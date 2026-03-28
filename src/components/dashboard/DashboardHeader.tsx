@@ -92,6 +92,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = (props) => {
             </div>
             <span className="text-lg font-bold font-display text-foreground">InVision U</span>
           </div>
+          {/* Кнопка "Заявка" оставлена, "Настройки" удалена */}
           <nav className="flex items-center gap-1 bg-muted rounded-lg p-1">
             <button
               onClick={() => onNavChange("application")}
@@ -101,21 +102,9 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = (props) => {
             >
               Заявка
             </button>
-            <button
-              onClick={() => onNavChange("settings")}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                activeNav === "settings" ? "tab-active" : "tab-inactive"
-              }`}
-            >
-              Настройки
-            </button>
           </nav>
         </div>
         <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
-            <HelpCircle className="h-4 w-4" />
-            Поддержка
-          </button>
           {user ? (
             <div className="flex items-center gap-2">
               <span className="text-sm font-semibold text-primary">{user.email}</span>

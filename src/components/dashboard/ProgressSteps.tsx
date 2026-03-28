@@ -12,7 +12,7 @@ interface ProgressStepsProps {
 
 const ProgressSteps: React.FC<ProgressStepsProps> = ({ steps }) => {
   return (
-    <div className="space-y-0">
+    <div className="space-y-1">
       {steps.map((step, index) => (
         <div key={index} className="flex items-start gap-3">
           <div className="flex flex-col items-center">
@@ -33,7 +33,7 @@ const ProgressSteps: React.FC<ProgressStepsProps> = ({ steps }) => {
             </div>
             {index < steps.length - 1 && (
               <div
-                className={`w-0.5 h-8 ${
+                className={`w-0.5 h-4 ${
                   step.status === "completed" ? "bg-primary" : "bg-border"
                 }`}
               />

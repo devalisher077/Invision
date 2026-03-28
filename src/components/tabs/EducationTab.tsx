@@ -16,7 +16,7 @@ const EducationTab: React.FC = () => {
           required
         />
         <p className="text-xs text-muted-foreground">
-          Загрузите видеопрезентацию на YouTube или Vimeo и вставьте ссылку выше.
+          Загрузите видеопрезентацию на YouTube вставьте ссылку выше.
         </p>
       </div>
 
@@ -30,7 +30,7 @@ const EducationTab: React.FC = () => {
           required
         />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <FormInput label="Общий балл" placeholder="напр. 7.0" required />
+          <FormInput label="Общий балл" placeholder="6.0" required />
           <FormInput label="Дата сдачи" type="date" required />
         </div>
         <FileUploadDropzone label="Загрузите сертификат теста" required />
@@ -45,7 +45,7 @@ const EducationTab: React.FC = () => {
         />
         <FileUploadDropzone
           label="Дополнительные документы"
-          description="Любые дополнительные подтверждающие документы (необязательно)"
+          description="Если у вас есть дополнительная информация о вашем образовании, вы можете загрузить её здесь."
         />
       </div>
     </div>

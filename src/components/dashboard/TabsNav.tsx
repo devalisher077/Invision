@@ -3,10 +3,8 @@ import { User, Phone, BookOpen, ClipboardList, FileCheck } from "lucide-react";
 
 export const TAB_LIST = [
   { key: "personal", label: "Личная информация", icon: User },
-  { key: "contact", label: "Контактные данные", icon: Phone },
   { key: "education", label: "Образование", icon: BookOpen },
   { key: "test", label: "Внутренний тест", icon: ClipboardList },
-  { key: "certificate", label: "Справка о соц. статусе", icon: FileCheck },
 ] as const;
 
 export type TabKey = (typeof TAB_LIST)[number]["key"];

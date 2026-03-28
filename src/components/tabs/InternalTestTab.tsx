@@ -1,60 +1,71 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { supabase } from "../../lib/supabase";
 
-const questions = [
-  {
-    id: 1,
-    question: "Какова основная цель высшего образования?",
-    options: [
-      "Получить диплом",
-      "Развить критическое мышление и практические навыки",
-      "Соответствовать ожиданиям общества",
-      "Отложить выход на рынок труда",
-    ],
-  },
-  {
-    id: 2,
-    question: "Какое качество наиболее важно для академического успеха?",
-    options: [
-      "Природный талант",
-      "Самодисциплина и последовательность",
-      "Финансовые ресурсы",
-      "Социальные связи",
-    ],
-  },
-  {
-    id: 3,
-    question: "Как вы предпочитаете изучать новые концепции?",
-    options: [
-      "Через лекции и чтение",
-      "Через практические проекты и эксперименты",
-      "Через групповые обсуждения",
-      "Через самостоятельные исследования",
-    ],
-  },
-  {
-    id: 4,
-    question: "Что мотивирует вас поступить на эту программу?",
-    options: [
-      "Возможности карьерного роста",
-      "Интерес к предмету",
-      "Рекомендации других людей",
-      "Наличие стипендий",
-    ],
-  },
-  {
-    id: 5,
-    question: "Как вы справляетесь с академическими трудностями?",
-    options: [
-      "Сразу обращаюсь к преподавателям",
-      "Сначала пытаюсь разобраться самостоятельно",
-      "Работаю вместе с однокурсниками",
-      "Беру паузу и возвращаюсь позже",
-    ],
-  },
-];
+
+type Question = {
+  id: number;
+  question: string;
+  options: string[];
+};
 
 const InternalTestTab: React.FC = () => {
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [loading, setLoading] = useState(true);
   const [answers, setAnswers] = useState<Record<number, number>>({});
+
+  useEffect(() => {
+    const fetchQuestions = async () => {
+      setLoading(true);
+      const { data, error } = await supabase.from('questions').select('*');
+      if (error) {
+        setQuestions([]);
+        setLoading(false);
+        return;
+      }
+      // Ожидается, что поле options хранится как массив или строка JSON
+      const formatted = data.map((q: any) => ({
+        id: q.id,
+        question: q.text, // используем поле text
+        options: Array.isArray(q.options) ? q.options : JSON.parse(q.options),
+      }));
+      setQuestions(formatted);
+      setLoading(false);
+    };
+    fetchQuestions();
+  }, []);
+
+  // Состояние для статуса отправки
+  const [submitting, setSubmitting] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState<string | null>(null);
+
+  // Функция отправки ответов
+  const handleSubmit = async () => {
+    setSubmitting(true);
+    setSubmitMessage(null);
+    try {
+      // Получаем user_id из Supabase Auth
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setSubmitMessage('Пользователь не авторизован.');
+        setSubmitting(false);
+        return;
+      }
+      const user_id = user.id;
+      // Преобразуем ответы в массив для отправки
+      const answersArray = Object.entries(answers).map(([question_id, option_index]) => ({
+        user_id,
+        question_id: Number(question_id),
+        answer: Number(option_index),
+      }));
+      const { error } = await supabase.from('user_answers').insert(answersArray);
+      if (error) throw error;
+      setSubmitMessage('Ответы успешно отправлены!');
+    } catch (e: any) {
+      setSubmitMessage('Ошибка при отправке ответов.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -65,48 +76,67 @@ const InternalTestTab: React.FC = () => {
         </p>
       </div>
 
-      {questions.map((q, qIndex) => (
-        <div key={q.id} className="dashboard-card space-y-4">
-          <p className="text-sm font-semibold text-foreground">
-            <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold mr-2">
-              {qIndex + 1}
-            </span>
-            {q.question}
-          </p>
-          <div className="space-y-2 pl-8">
-            {q.options.map((option, oIndex) => (
-              <label
-                key={oIndex}
-                className={`flex items-center gap-3 rounded-xl border px-4 py-3 cursor-pointer transition-all duration-200 ${
-                  answers[q.id] === oIndex
-                    ? "border-primary bg-primary/5"
-                    : "border-border hover:border-primary/30 hover:bg-muted/50"
-                }`}
-              >
-                <div
-                  className={`h-4 w-4 rounded-full border-2 flex items-center justify-center transition-all ${
-                    answers[q.id] === oIndex ? "border-primary" : "border-muted-foreground/40"
-                  }`}
-                >
-                  {answers[q.id] === oIndex && (
-                    <div className="h-2 w-2 rounded-full bg-primary" />
-                  )}
-                </div>
-                <span className="text-sm text-foreground">{option}</span>
-                <input
-                  type="radio"
-                  name={`q-${q.id}`}
-                  className="sr-only"
-                  checked={answers[q.id] === oIndex}
-                  onChange={() => setAnswers({ ...answers, [q.id]: oIndex })}
-                />
-              </label>
-            ))}
+      {loading ? (
+        <div className="text-center text-muted-foreground">Загрузка...</div>
+      ) : questions.length === 0 ? (
+        <div className="text-center text-muted-foreground">Вопросы не найдены.</div>
+      ) : (
+        <>
+          {questions.map((q, qIndex) => (
+            <div key={q.id} className="dashboard-card space-y-4">
+              <p className="text-sm font-semibold text-foreground">
+                <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold mr-2">
+                  {qIndex + 1}
+                </span>
+                {q.question}
+              </p>
+              <div className="space-y-2 pl-8">
+                {q.options.map((option, oIndex) => (
+                  <label
+                    key={oIndex}
+                    className={`flex items-center gap-3 rounded-xl border px-4 py-3 cursor-pointer transition-all duration-200 ${
+                      answers[q.id] === oIndex
+                        ? "border-primary bg-primary/5"
+                        : "border-border hover:border-primary/30 hover:bg-muted/50"
+                    }`}
+                  >
+                    <div
+                      className={`h-4 w-4 rounded-full border-2 flex items-center justify-center transition-all ${
+                        answers[q.id] === oIndex ? "border-primary" : "border-muted-foreground/40"
+                      }`}
+                    >
+                      {answers[q.id] === oIndex && (
+                        <div className="h-2 w-2 rounded-full bg-primary" />
+                      )}
+                    </div>
+                    <span className="text-sm text-foreground">{option}</span>
+                    <input
+                      type="radio"
+                      name={`q-${q.id}`}
+                      className="sr-only"
+                      checked={answers[q.id] === oIndex}
+                      onChange={() => setAnswers({ ...answers, [q.id]: oIndex })}
+                    />
+                  </label>
+                ))}
+              </div>
+            </div>
+          ))}
+          <div className="flex flex-col items-center mt-6">
+            <button
+              className="px-6 py-2 rounded bg-primary text-primary-foreground font-semibold disabled:opacity-50"
+              onClick={handleSubmit}
+              disabled={submitting || Object.keys(answers).length !== questions.length}
+            >
+              {submitting ? 'Отправка...' : 'Сдать тест'}
+            </button>
+            {submitMessage && (
+              <div className="mt-2 text-sm text-muted-foreground">{submitMessage}</div>
+            )}
           </div>
-        </div>
-      ))}
+        </>
+      )}
     </div>
   );
 };
-
 export default InternalTestTab;
