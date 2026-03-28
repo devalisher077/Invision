@@ -35,6 +35,7 @@ const documents = [
 const Index: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabKey>("personal");
   const [activeNav, setActiveNav] = useState<"application" | "settings">("application");
+  const [userEmail, setUserEmail] = useState<string>("");
   const contentRef = useRef<HTMLDivElement>(null);
 
   const currentTabIndex = TAB_LIST.findIndex((t) => t.key === activeTab);
@@ -66,10 +67,10 @@ const Index: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <DashboardHeader activeNav={activeNav} onNavChange={setActiveNav} />
+      <DashboardHeader activeNav={activeNav} onNavChange={setActiveNav} setUserEmail={setUserEmail} />
 
       <div className="flex-1 max-w-7xl mx-auto w-full px-6 py-6 space-y-6">
-        <DashboardBanner userName="Абитуриент" onSendApplication={() => alert("Заявка отправлена!")} />
+        <DashboardBanner userName={userEmail || "Абитуриент"} onSendApplication={() => alert("Заявка отправлена!")} />
 
         <div className="flex items-center gap-3">
           <h2 className="text-xl font-bold font-display text-foreground">Заявка</h2>

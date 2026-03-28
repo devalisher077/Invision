@@ -3,12 +3,10 @@ export async function registerApplicant(email: string, password: string) {
   const { data, error } = await supabase.auth.signUp({ email, password });
   if (error) throw error;
   const user = data.user;
-  if (!user) throw new Error('Пользователь не создан');
-  // Вставка в таблицу registration
-  const { error: insertError } = await supabase.from('registration').insert([
-    { user_id: user.id, email }
-  ]);
-  if (insertError) throw insertError;
+  if (!user) {
+    throw new Error('Пользователь создан, но требуется подтверждение email.');
+  }
+  // Вставка user_id в user_registration теперь происходит автоматически через SQL-триггер
   return user;
 }
 import { supabase } from './supabase'
