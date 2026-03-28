@@ -1,0 +1,45 @@
+node_modules/
+.env
+dist/
+build/
+coverage/
+.vscode/
+.idea/
+.DS_Store
+*.log
+# macOS
+Thumbs.db
+ehthumbs.db
+Icon?
+.Spotlight-V100
+.Trashes
+
+# npm & yarn & bun
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+bun.lockb
+
+# Vite
+.vite/deps
+.vite/cache
+
+# VSCode
+*.code-workspace
+history/
+
+# Test output
+*.lcov
+*.tsbuildinfo
+
+# Misc
+*.sublime-workspace
+*.sublime-project
+*.swp
+*.swo
+*.tmp
+tmp/
+temp/
+*.bak
+*.orig
