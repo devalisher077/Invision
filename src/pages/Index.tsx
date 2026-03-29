@@ -50,7 +50,7 @@ const Index: React.FC = () => {
   const currentTabIndex = TAB_LIST.findIndex((t) => t.key === activeTab);
   const isLastTab = currentTabIndex === TAB_LIST.length - 1;
 
-  // Добавим кнопку AI Scoring для приёмной комиссии
+  
   const handleScoringClick = () => {
     window.location.href = '/Scoring';
   };
@@ -87,7 +87,7 @@ const Index: React.FC = () => {
       <div className="flex-1 max-w-7xl mx-auto w-full px-6 py-6 space-y-6">
         <DashboardBanner userName={userEmail || "Абитуриент"} onSendApplication={() => alert("Заявка отправлена!")} />
 
-      {/* Кнопка AI Scoring для приёмной комиссии — над этапом заявки */}
+      
       <div className="flex justify-end mt-4">
         <Button
           variant="default"

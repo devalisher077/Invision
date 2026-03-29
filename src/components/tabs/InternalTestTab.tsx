@@ -22,10 +22,10 @@ const InternalTestTab: React.FC = () => {
         setLoading(false);
         return;
       }
-      // Ожидается, что поле options хранится как массив или строка JSON
+      
       const formatted = data.map((q: any) => ({
         id: q.id,
-        question: q.text, // используем поле text
+        question: q.text, 
         options: Array.isArray(q.options) ? q.options : JSON.parse(q.options),
       }));
       setQuestions(formatted);
@@ -34,16 +34,16 @@ const InternalTestTab: React.FC = () => {
     fetchQuestions();
   }, []);
 
-  // Состояние для статуса отправки
+  
   const [submitting, setSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState<string | null>(null);
 
-  // Функция отправки ответов
+  
   const handleSubmit = async () => {
     setSubmitting(true);
     setSubmitMessage(null);
     try {
-      // Получаем user_id из Supabase Auth
+      
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         setSubmitMessage('Пользователь не авторизован.');
@@ -51,7 +51,7 @@ const InternalTestTab: React.FC = () => {
         return;
       }
       const user_id = user.id;
-      // Преобразуем ответы в массив для отправки
+      
       const answersArray = Object.entries(answers).map(([question_id, option_index]) => ({
         user_id,
         question_id: Number(question_id),

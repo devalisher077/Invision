@@ -22,7 +22,7 @@ interface DashboardHeaderProps {
 
 const DashboardHeader: React.FC<DashboardHeaderProps> = (props) => {
   const { activeNav, onNavChange, setUserEmail } = props;
-  // Состояния для email, password и статуса
+  
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [regStatus, setRegStatus] = useState<string | null>(null);
@@ -30,7 +30,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = (props) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [mode, setMode] = useState<'register' | 'login'>('register');
 
-  // Проверка сессии при загрузке
+  
   React.useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       if (data?.user) {
@@ -45,7 +45,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = (props) => {
     return () => { listener?.subscription.unsubscribe(); };
   }, []);
 
-  // Обработчик регистрации
+  
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setRegStatus(null);
@@ -61,7 +61,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = (props) => {
     }
   };
 
-  // Обработчик входа
+  
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setRegStatus(null);
@@ -76,7 +76,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = (props) => {
     }
   };
 
-  // Обработчик выхода
+  
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setUser(null);
@@ -92,7 +92,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = (props) => {
             </div>
             <span className="text-lg font-bold font-display text-foreground">InVision U</span>
           </div>
-          {/* Кнопка "Заявка" оставлена, "Настройки" удалена */}
+          
           <nav className="flex items-center gap-1 bg-muted rounded-lg p-1">
             <button
               onClick={() => onNavChange("application")}

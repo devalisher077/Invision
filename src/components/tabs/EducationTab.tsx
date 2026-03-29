@@ -1,6 +1,6 @@
 
 import React, { useState, useRef } from "react";
-// Функция для транслитерации и очистки имени файла
+ 
 function sanitizeFileName(name: string): string {
   const cyrillicToLatinMap: Record<string, string> = {
     А: "A", Б: "B", В: "V", Г: "G", Д: "D", Е: "E", Ё: "E", Ж: "Zh", З: "Z", И: "I", Й: "Y", К: "K", Л: "L", М: "M", Н: "N", О: "O", П: "P", Р: "R", С: "S", Т: "T", У: "U", Ф: "F", Х: "Kh", Ц: "Ts", Ч: "Ch", Ш: "Sh", Щ: "Shch", Ы: "Y", Э: "E", Ю: "Yu", Я: "Ya",
@@ -10,7 +10,7 @@ function sanitizeFileName(name: string): string {
     .split("")
     .map(char => cyrillicToLatinMap[char] || char)
     .join("")
-    .replace(/[^a-zA-Z0-9_.-]/g, "_"); // заменяем пробелы и спецсимволы на _
+    .replace(/[^a-zA-Z0-9_.-]/g, "_"); 
 }
 import FormInput from "../dashboard/FormInput";
 import ToggleGroup from "../dashboard/ToggleGroup";
@@ -25,20 +25,25 @@ const EducationTab: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
-  // refs для файлов
+
+  
   const certRef = useRef<any>(null);
   const attestatRef = useRef<any>(null);
   const achievementsRef = useRef<any>(null);
+  const essayRef = useRef<any>(null);
 
-  // Состояния для файлов
+  
   const [certFiles, setCertFiles] = useState<File[]>([]);
   const [attestatFiles, setAttestatFiles] = useState<File[]>([]);
   const [achievementFiles, setAchievementFiles] = useState<File[]>([]);
+  const [essayFiles, setEssayFiles] = useState<File[]>([]);
 
-  // Обработчики для FileUploadDropzone
+  
   const handleCertFiles = (files: File[]) => setCertFiles(files);
   const handleAttestatFiles = (files: File[]) => setAttestatFiles(files);
   const handleAchievementFiles = (files: File[]) => setAchievementFiles(files);
+  const handleEssayFiles = (files: File[]) => setEssayFiles(files);
+
 
   const handleSave = async () => {
     setSaving(true);
@@ -52,8 +57,7 @@ const EducationTab: React.FC = () => {
       }
       const user_id = user.id;
 
-
-      // Загрузка сертификата теста
+      
       let test_certificate_url = null;
       if (certFiles.length > 0) {
         const safeCertName = sanitizeFileName(certFiles[0].name);
@@ -62,7 +66,7 @@ const EducationTab: React.FC = () => {
         test_certificate_url = data.path;
       }
 
-      // Загрузка аттестата/диплома
+      
       let attestat_url = null;
       if (attestatFiles.length > 0) {
         const safeAttestatName = sanitizeFileName(attestatFiles[0].name);
@@ -71,7 +75,7 @@ const EducationTab: React.FC = () => {
         attestat_url = data.path;
       }
 
-      // Загрузка дополнительных достижений
+      
       let achievements_urls: string[] = [];
       for (let i = 0; i < achievementFiles.length; i++) {
         const file = achievementFiles[i];
@@ -81,7 +85,16 @@ const EducationTab: React.FC = () => {
         achievements_urls.push(data.path);
       }
 
-      // Сохраняем все данные в education
+      
+      let essay = null;
+      if (essayFiles.length > 0) {
+        const safeEssayName = sanitizeFileName(essayFiles[0].name);
+        const { data, error } = await supabase.storage.from('education').upload(`${user_id}/essay_${Date.now()}_${safeEssayName}`, essayFiles[0]);
+        if (error) throw error;
+        essay = data.path;
+      }
+
+      
       const { error } = await supabase.from('education').upsert([
         {
           user_id,
@@ -92,6 +105,7 @@ const EducationTab: React.FC = () => {
           test_certificate_url,
           attestat_url,
           achievements_urls,
+          essay,
         },
       ], { onConflict: "user_id" });
       if (error) throw error;
@@ -147,6 +161,17 @@ const EducationTab: React.FC = () => {
           label="Дополнительные документы"
           description="Если у вас есть дополнительная информация о вашем образовании, вы можете загрузить её здесь."
           onFilesChange={handleAchievementFiles}
+        />
+      </div>
+
+      <div className="dashboard-card space-y-6">
+        <h3 className="text-lg font-semibold font-display text-foreground">Эссе</h3>
+        <FileUploadDropzone
+          label="Загрузите эссе (Word или PDF)"
+          required={false}
+          accept=".doc,.docx,.pdf"
+          description="Файл эссе в формате DOC, DOCX или PDF. Максимум 10 МБ."
+          onFilesChange={handleEssayFiles}
         />
         <div className="flex items-center gap-4 mt-6">
           <button

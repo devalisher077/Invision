@@ -8,7 +8,7 @@ const Scoring: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Вспомогательная функция для получения публичной ссылки на файл из bucket education
+  
   function getEducationFileUrl(key?: string | null): string | null {
     if (!key) return null;
     const { data } = supabase.storage.from('education').getPublicUrl(key);
@@ -21,7 +21,7 @@ const Scoring: React.FC = () => {
     setError(null);
     setUserInfo(null);
     try {
-      // 1. Найти пользователя по email в user_registration
+      
       const { data: registration, error: regError } = await supabase
         .from('user_registration')
         .select('*')
@@ -34,7 +34,7 @@ const Scoring: React.FC = () => {
       }
       setUserId(registration.user_id);
 
-      // 2. Получить информацию из таблиц
+      
       const [
         { data: applicants },
         { data: education },
@@ -147,7 +147,6 @@ const Scoring: React.FC = () => {
                   {(() => {
                     const ach = userInfo.education.achievements_urls;
                     if (Array.isArray(ach) && ach.length > 0) {
-                      // Если массив массивов (двойной)
                       if (Array.isArray(ach[0])) {
                         return (
                           <ul className="list-disc ml-5">
@@ -161,7 +160,6 @@ const Scoring: React.FC = () => {
                           </ul>
                         );
                       }
-                      // Обычный массив
                       return (
                         <ul className="list-disc ml-5">
                           {ach.map((a: string, idx: number) => (
@@ -174,7 +172,6 @@ const Scoring: React.FC = () => {
                         </ul>
                       );
                     } else if (typeof ach === 'string' && ach.includes(',')) {
-                      // Если строка с запятыми (например, "a.jpg,b.jpg")
                       const arr = ach.split(',').map(s => s.trim()).filter(Boolean);
                       return (
                         <ul className="list-disc ml-5">
@@ -188,7 +185,6 @@ const Scoring: React.FC = () => {
                         </ul>
                       );
                     } else if (typeof ach === 'string' && ach.length > 0) {
-                      // Одиночная строка
                       return (
                         <a href={getEducationFileUrl(ach)} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline font-medium">Скачать достижения</a>
                       );
@@ -198,9 +194,33 @@ const Scoring: React.FC = () => {
                   })()}
                 </div>
               </div>
+
+              
+              <div className="flex gap-4">
+                <div className="w-full">
+                  <div className="text-gray-500 text-xs mb-1">Эссе</div>
+                  {userInfo.education.essay ? (() => {
+                    const url = getEducationFileUrl(userInfo.education.essay);
+                    const isWord = url && (url.endsWith('.doc') || url.endsWith('.docx'));
+                    const viewerUrl = isWord ? `https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true` : url;
+                    return (
+                      <a
+                        href={viewerUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 underline font-medium"
+                      >
+                        Открыть эссе
+                      </a>
+                    );
+                  })() : (
+                    <span className="text-gray-400">Нет файла</span>
+                  )}
+                </div>
+              </div>
             </div>
           )}
-            {/* Вопросы и ответы пользователя */}
+            
             {userInfo && userInfo.questions && userInfo.answers && userInfo.answers.length > 0 && (
               <div className="bg-card p-6 rounded-xl shadow flex flex-col gap-4 mt-4 border border-border">
                 <h3 className="font-semibold mb-2 text-lg text-foreground">Ответы на вопросы</h3>
@@ -209,7 +229,7 @@ const Scoring: React.FC = () => {
                   const answer = userInfo.answers.find((a: any) => a.question_id === q.id);
                   let answerText = '';
                   if (answer) {
-                    // Если ответ — число и есть варианты
+                    
                     if ((typeof answer.answer === 'number' || (typeof answer.answer === 'string' && !isNaN(Number(answer.answer)))) && (q.options || q.choices)) {
                       const idx = Number(answer.answer);
                       const opts = q.options || q.choices;
