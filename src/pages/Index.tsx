@@ -1,6 +1,7 @@
 import React, { useState, useRef } from "react";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import DashboardBanner from "@/components/dashboard/DashboardBanner";
+import { Button } from "@/components/ui/button";
 import TabsNav, { TAB_LIST, TabKey } from "@/components/dashboard/TabsNav";
 import ProgressSteps from "@/components/dashboard/ProgressSteps";
 import SidebarCard from "@/components/dashboard/SidebarCard";
@@ -49,6 +50,10 @@ const Index: React.FC = () => {
   const currentTabIndex = TAB_LIST.findIndex((t) => t.key === activeTab);
   const isLastTab = currentTabIndex === TAB_LIST.length - 1;
 
+  // Добавим кнопку AI Scoring для приёмной комиссии
+  const handleScoringClick = () => {
+    window.location.href = '/Scoring';
+  };
   const handleTabChange = (tab: TabKey) => {
     setActiveTab(tab);
     contentRef.current?.scrollTo({ top: 0, behavior: "smooth" });
@@ -56,12 +61,16 @@ const Index: React.FC = () => {
   };
 
   const handleNext = () => {
-    if (isLastTab) {
-      alert("Заявка отправлена!");
-    } else {
+    if (!isLastTab) {
       handleTabChange(TAB_LIST[currentTabIndex + 1].key);
     }
-  };
+  } 
+
+  const handleBack = () => {
+    if (currentTabIndex > 0) {
+      handleTabChange(TAB_LIST[currentTabIndex - 1].key);
+    }
+  }
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -77,6 +86,18 @@ const Index: React.FC = () => {
 
       <div className="flex-1 max-w-7xl mx-auto w-full px-6 py-6 space-y-6">
         <DashboardBanner userName={userEmail || "Абитуриент"} onSendApplication={() => alert("Заявка отправлена!")} />
+
+      {/* Кнопка AI Scoring для приёмной комиссии — над этапом заявки */}
+      <div className="flex justify-end mt-4">
+        <Button
+          variant="default"
+          size="default"
+          className="rounded-xl px-4 py-2.5 text-sm font-medium shadow-sm"
+          onClick={handleScoringClick}
+        >
+          AI Scoring для приёмной комиссии
+        </Button>
+      </div>
 
         <div className="flex items-center gap-3">
           <h2 className="text-xl font-bold font-display text-foreground">Заявка</h2>
@@ -120,19 +141,6 @@ const Index: React.FC = () => {
                 ))}
               </div>
             </SidebarCard>
-
-            <SidebarCard title="Важные даты" icon={<CalendarDays className="h-4 w-4" />}>
-              <div className="rounded-xl bg-muted p-4 text-center space-y-1">
-                <p className="text-xs text-muted-foreground font-medium">Крайний срок подачи</p>
-                <p className="text-lg font-bold font-display text-foreground">
-                  {deadline.toLocaleDateString("ru-RU", {
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric",
-                  })}
-                </p>
-              </div>
-            </SidebarCard>
           </aside>
         </div>
       </div>
@@ -143,13 +151,26 @@ const Index: React.FC = () => {
             Шаг {currentTabIndex + 1} из {TAB_LIST.length} —{" "}
             <span className="font-medium text-foreground">{TAB_LIST[currentTabIndex].label}</span>
           </p>
-          <button
-            onClick={handleNext}
-            className="flex items-center gap-2 rounded-xl bg-primary px-8 py-3 text-sm font-semibold text-primary-foreground hover:brightness-110 transition-all shadow-lg shadow-primary/20"
-          >
-            {isLastTab ? "Отправить заявку" : "Следующий шаг"}
-            {!isLastTab && <ChevronRight className="h-4 w-4" />}
-          </button>
+          <div className="flex gap-4">
+            {currentTabIndex > 0 && (
+              <button
+                onClick={handleBack}
+                className="flex items-center gap-2 rounded-xl bg-secondary px-8 py-3 text-sm font-semibold text-secondary-foreground hover:brightness-110 transition-all shadow-lg shadow-secondary/20"
+              >
+                <ChevronRight className="h-4 w-4 rotate-180" />
+                Назад
+              </button>
+            )}
+            {!isLastTab && (
+              <button
+                onClick={handleNext}
+                className="flex items-center gap-2 rounded-xl bg-primary px-8 py-3 text-sm font-semibold text-primary-foreground hover:brightness-110 transition-all shadow-lg shadow-primary/20"
+              >
+                Следующий шаг
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>

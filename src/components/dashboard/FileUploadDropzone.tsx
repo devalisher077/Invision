@@ -6,6 +6,7 @@ interface FileUploadDropzoneProps {
   accept?: string;
   required?: boolean;
   description?: string;
+  onFilesChange?: (files: File[]) => void;
 }
 
 const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
@@ -13,6 +14,7 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
   accept = ".jpg,.png,.pdf",
   required = false,
   description = "JPG, PNG или PDF, макс. 10МБ",
+  onFilesChange,
 }) => {
   const [files, setFiles] = useState<File[]>([]);
   const [isDragging, setIsDragging] = useState(false);
@@ -21,17 +23,29 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
     e.preventDefault();
     setIsDragging(false);
     const newFiles = Array.from(e.dataTransfer.files);
-    setFiles((prev) => [...prev, ...newFiles]);
+    setFiles((prev) => {
+      const updated = [...prev, ...newFiles];
+      onFilesChange?.(updated);
+      return updated;
+    });
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setFiles((prev) => [...prev, ...Array.from(e.target.files!)]);
+      setFiles((prev) => {
+        const updated = [...prev, ...Array.from(e.target.files!)];
+        onFilesChange?.(updated);
+        return updated;
+      });
     }
   };
 
   const removeFile = (index: number) => {
-    setFiles((prev) => prev.filter((_, i) => i !== index));
+    setFiles((prev) => {
+      const updated = prev.filter((_, i) => i !== index);
+      onFilesChange?.(updated);
+      return updated;
+    });
   };
 
   return (

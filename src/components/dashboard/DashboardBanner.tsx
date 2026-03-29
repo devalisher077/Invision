@@ -25,13 +25,7 @@ const DashboardBanner: React.FC<DashboardBannerProps> = ({ userName, onSendAppli
             Пожалуйста, заполните форму, загрузите документы и отправьте вашу заявку!
           </p>
         </div>
-        <button
-          onClick={onSendApplication}
-          className="flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:brightness-110 transition-all shadow-lg shadow-primary/20"
-        >
-          <Send className="h-4 w-4" />
-          Отправить заявку
-        </button>
+        
       </div>
     </div>
   );
