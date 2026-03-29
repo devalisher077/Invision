@@ -1,4 +1,4 @@
-# InvVision Jective team (KZ,Uralsk)
+# Invision Jective team (KZ,Uralsk)
 
 ## Основные реализованные функции
 
