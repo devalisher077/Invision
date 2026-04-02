@@ -1,6 +1,6 @@
-# InvVision
+# InvVision Jective team KZ
 
-Веб-приложение для цифровой приемной кампании университета. Проект объединяет личный кабинет абитуриента, загрузку документов, внутреннее тестирование, отдельный интерфейс для приемной комиссии и локальный AI-backend для анализа видеопрезентаций и эссе.
+Веб-приложение для цифровой приемной кампании университета. Проект объединяет личный кабинет абитуриента, загрузку документов, внутреннее тестирование, отдельный интерфейс для приемной комиссии и локальный AI-backend для анализа видеоинтервью и эссе.
 
 ## Что реализовано
 
@@ -290,5 +290,12 @@ InvVision автоматизирует прием абитуриентов в о
 <img width="1920" height="1080" alt="2" src="https://github.com/user-attachments/assets/2787cde3-be91-4886-8333-808a12db4610" />
 <img width="1920" height="1080" alt="3" src="https://github.com/user-attachments/assets/d673cf93-4146-493d-b57e-d764c80e6777" />
 <img width="1920" height="1080" alt="4" src="https://github.com/user-attachments/assets/91e6c0a4-eac5-4ee5-ba82-261db04edf13" />
+<img width="1920" height="1080" alt="6" src="https://github.com/user-attachments/assets/c5d15d92-7fb2-4ac8-9676-5931e8f9b084" />
+<img width="1920" height="1080" alt="7" src="https://github.com/user-attachments/assets/bcbfa1a1-d620-4327-9782-ac1012b6887c" />
+<img width="1920" height="1080" alt="8" src="https://github.com/user-attachments/assets/1029ee08-0aa1-455b-adb6-28de1b57f1fd" />
+<img width="1920" height="1080" alt="9" src="https://github.com/user-attachments/assets/13acb1c7-ba0c-4822-b371-873ce12d1422" />
+
+
+
 
 
