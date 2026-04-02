@@ -95,7 +95,7 @@ const Index: React.FC = () => {
           className="rounded-xl px-4 py-2.5 text-sm font-medium shadow-sm"
           onClick={handleScoringClick}
         >
-          AI Scoring для приёмной комиссии
+          Scoring для приёмной комиссии
         </Button>
       </div>
 

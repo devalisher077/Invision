@@ -21,6 +21,7 @@ const EducationTab: React.FC = () => {
   const [videoUrl, setVideoUrl] = useState("");
   const [testType, setTestType] = useState("IELTS");
   const [testScore, setTestScore] = useState("");
+  const [scoreEnt, setScoreEnt] = useState("");
   const [testDate, setTestDate] = useState("");
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -95,18 +96,20 @@ const EducationTab: React.FC = () => {
       }
 
       
+      const upsertData: any = {
+        user_id,
+        video_url: videoUrl,
+        test_type: testType,
+        test_score: testScore,
+        test_date: testDate,
+        test_certificate_url,
+        attestat_url,
+        achievements_urls,
+        essay,
+        score_ent: scoreEnt,
+      };
       const { error } = await supabase.from('education').upsert([
-        {
-          user_id,
-          video_url: videoUrl,
-          test_type: testType,
-          test_score: testScore,
-          test_date: testDate,
-          test_certificate_url,
-          attestat_url,
-          achievements_urls,
-          essay,
-        },
+        upsertData
       ], { onConflict: "user_id" });
       if (error) throw error;
       setMessage("Данные успешно сохранены!");
@@ -151,12 +154,15 @@ const EducationTab: React.FC = () => {
 
       <div className="dashboard-card space-y-6">
         <h3 className="text-lg font-semibold font-display text-foreground">Дополнительные документы</h3>
-        <FileUploadDropzone
-          label="Аттестат / Диплом"
-          required
-          description="Загрузите последний документ об образовании (JPG, PNG, PDF)"
-          onFilesChange={handleAttestatFiles}
-        />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <FileUploadDropzone
+            label="Аттестат / Диплом"
+            required
+            description="Загрузите последний документ об образовании (JPG, PNG, PDF)"
+            onFilesChange={handleAttestatFiles}
+          />
+          <FormInput label="Общий балл ЕНТ" placeholder="100" value={scoreEnt} onChange={setScoreEnt} />
+        </div>
         <FileUploadDropzone
           label="Дополнительные документы"
           description="Если у вас есть дополнительная информация о вашем образовании, вы можете загрузить её здесь."
@@ -167,7 +173,7 @@ const EducationTab: React.FC = () => {
       <div className="dashboard-card space-y-6">
         <h3 className="text-lg font-semibold font-display text-foreground">Эссе</h3>
         <FileUploadDropzone
-          label="Загрузите эссе (Word или PDF)"
+          label="Загрузите эссе 450 слов (Word или PDF)"
           required={false}
           accept=".doc,.docx,.pdf"
           description="Файл эссе в формате DOC, DOCX или PDF. Максимум 10 МБ."
