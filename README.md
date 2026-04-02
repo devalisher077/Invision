@@ -293,6 +293,8 @@ InvVision автоматизирует прием абитуриентов в о
 <img width="1920" height="1080" alt="7" src="https://github.com/user-attachments/assets/bcbfa1a1-d620-4327-9782-ac1012b6887c" />
 <img width="1920" height="1080" alt="8" src="https://github.com/user-attachments/assets/1029ee08-0aa1-455b-adb6-28de1b57f1fd" />
 <img width="1920" height="1080" alt="9" src="https://github.com/user-attachments/assets/13acb1c7-ba0c-4822-b371-873ce12d1422" />
+<img width="1920" height="1080" alt="10" src="https://github.com/user-attachments/assets/500ad30a-fc31-4c4a-8fdf-1b9071523104" />
+
 
 
 
