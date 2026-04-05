@@ -1,6 +1,12 @@
 # InvVision Jective team KZ
 
-Веб-приложение для цифровой приемной кампании университета. Проект объединяет личный кабинет абитуриента, загрузку документов, внутреннее тестирование, отдельный интерфейс для приемной комиссии и локальный AI-backend для анализа видеоинтервью и эссе.
+Веб-приложение для цифровой приемной кампании университета. Проект объединяет личный кабинет абитуриента, загрузку документов, внутреннее тестирование, отдельный интерфейс для приемной комиссии и AI-backend для анализа видеоинтервью и эссе.
+
+## Статус деплоя
+
+- Frontend задеплоен на Vercel.
+- Backend задеплоен на Railway.
+- Во frontend используется `VITE_API_BASE_URL`; если переменная не задана, по умолчанию используется Railway endpoint.
 
 ## Что реализовано
 
@@ -11,15 +17,15 @@
 - Прохождение внутреннего теста с загрузкой вопросов из базы данных.
 - Отдельная страница Scoring для приемной комиссии.
 - Агрегация профиля кандидата из нескольких таблиц Supabase по email.
-- Запуск AI-анализа видеопрезентации и эссе через локальный FastAPI backend.
+- Запуск AI-анализа видеопрезентации и эссе через FastAPI backend (Railway в production).
 - Отображение результатов анализа, предупреждений по пороговым баллам и связанных файлов кандидата.
 
 ## Архитектура
 
-Проект теперь построен как full-stack система из двух частей:
+Проект построен как full-stack система из двух частей:
 
 - frontend: Vite + React + TypeScript;
-- backend: FastAPI + Whisper + Gemini + Supabase Python client.
+- backend: FastAPI + Whisper + Gemini + Supabase Python client (deployment: Railway).
 
 ### 1. Клиентский слой
 
@@ -64,7 +70,7 @@
 
 ### 4. Backend слой
 
-Backend находится в папке `WhisperProject` и реализован в `WhisperProject/main.py`.
+Backend находится в отдельном репозитории (`inv_backend`) и реализован в `main.py`.
 
 Что делает backend:
 
@@ -89,10 +95,12 @@ Backend находится в папке `WhisperProject` и реализова�
 1. Собирает карточку кандидата из Supabase.
 2. Инициирует внешний AI-анализ видео и эссе.
 
-Frontend обращается к локальному HTTP API backend:
+Frontend обращается к backend через `VITE_API_BASE_URL`:
 
-- `POST http://127.0.0.1:8000/analyze-video`
-- `POST http://127.0.0.1:8000/analyze-essay`
+- `POST ${VITE_API_BASE_URL}/analyze-video`
+- `POST ${VITE_API_BASE_URL}/analyze-essay`
+
+В production по умолчанию используется Railway endpoint `https://invbackend-production-fcd5.up.railway.app`.
 
 После успешного анализа интерфейс повторно читает данные из таблиц `video_transcripts` и `essay_results` и обновляет экран.
 
@@ -235,7 +243,7 @@ src/
 - bucket `education` в Supabase Storage;
 - установленного `ffmpeg` в системе;
 - Python окружения для backend;
-- локального FastAPI backend на `127.0.0.1:8000` с маршрутами анализа видео и эссе.
+- backend с маршрутами анализа видео и эссе (Railway в production или локально для разработки).
 
 Используемые таблицы по коду:
 
@@ -259,6 +267,11 @@ npm install
 npm run dev
 ```
 
+### Production
+
+- Frontend: Vercel
+- Backend: Railway
+
 Ожидаемый запуск backend после установки зависимостей:
 
 ```bash
@@ -268,10 +281,15 @@ uvicorn main:app --reload --host 127.0.0.1 --port 8000
 
 ## Демо-данные
 
+Scoring данных абитуриентов доступно админу admin@gmail.com пароль "test@@"
  email для проверки раздела комиссии:
 
 - `jective@gmail.com`
 - `test77@gmail.com`
+- `daupaudi@gmail.com`
+- `test33@gmail.com`
+- `test77@gmail.com`
+- `test88@gmail.com`
 
 
 ## Назначение проекта
