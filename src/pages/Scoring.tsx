@@ -1,5 +1,48 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
+
+const ADMIN_EMAIL = 'admin@gmail.com';
+const FILE_URL_TTL_SECONDS = 60 * 60;
+
+function collectEducationFileKeys(education: any): string[] {
+  if (!education) return [];
+
+  const keys: string[] = [];
+  const baseKeys = [
+    education.video_url,
+    education.test_certificate_url,
+    education.attestat_url,
+    education.essay,
+  ];
+
+  for (const key of baseKeys) {
+    if (typeof key === 'string' && key.length > 0 && !key.startsWith('http')) {
+      keys.push(key);
+    }
+  }
+
+  const achievements = education.achievements_urls;
+  if (Array.isArray(achievements)) {
+    const flat = Array.isArray(achievements[0]) ? achievements[0] : achievements;
+    for (const key of flat) {
+      if (typeof key === 'string' && key.length > 0 && !key.startsWith('http')) {
+        keys.push(key);
+      }
+    }
+  } else if (typeof achievements === 'string' && achievements.length > 0) {
+    const values = achievements.includes(',')
+      ? achievements.split(',').map(item => item.trim()).filter(Boolean)
+      : [achievements];
+
+    for (const key of values) {
+      if (!key.startsWith('http')) {
+        keys.push(key);
+      }
+    }
+  }
+
+  return Array.from(new Set(keys));
+}
 
 const Scoring: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -11,11 +54,69 @@ const Scoring: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   const [isSearching, setIsSearching] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
+  const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(null);
+  const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
+
+  const isAdmin = currentUserEmail === ADMIN_EMAIL;
+
+  useEffect(() => {
+    let mounted = true;
+
+    const syncUser = async () => {
+      const { data } = await supabase.auth.getUser();
+      if (!mounted) return;
+      setCurrentUserEmail(data.user?.email ?? null);
+      setAuthChecked(true);
+    };
+
+    syncUser();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setCurrentUserEmail(session?.user?.email ?? null);
+      setAuthChecked(true);
+    });
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  useEffect(() => {
+    const loadSignedUrls = async () => {
+      const keys = collectEducationFileKeys(userInfo?.education);
+      if (keys.length === 0) {
+        setSignedUrls({});
+        return;
+      }
+
+      const urlEntries = await Promise.all(
+        keys.map(async key => {
+          const { data, error } = await supabase.storage
+            .from('education')
+            .createSignedUrl(key, FILE_URL_TTL_SECONDS);
+
+          if (error || !data?.signedUrl) {
+            return [key, ''] as const;
+          }
+
+          return [key, data.signedUrl] as const;
+        })
+      );
+
+      setSignedUrls(Object.fromEntries(urlEntries.filter(([, url]) => Boolean(url))));
+    };
+
+    loadSignedUrls();
+  }, [userInfo?.education]);
 
   function getEducationFileUrl(key?: string | null): string | null {
     if (!key) return null;
-    const { data } = supabase.storage.from('education').getPublicUrl(key);
-    return data?.publicUrl || null;
+    if (String(key).startsWith('http')) return key;
+    return signedUrls[key] || null;
   }
 
   function parseResultLLM(result: any): string {
@@ -58,6 +159,12 @@ const Scoring: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!isAdmin) {
+      setError('Доступ к Scoring разрешен только для admin@gmail.com');
+      return;
+    }
+
     setLoading(true);
     setError(null);
     setUserInfo(null);
@@ -106,6 +213,37 @@ const Scoring: React.FC = () => {
       setLoading(false);
     }
   };
+
+  if (!authChecked) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background px-6">
+        <div className="w-full max-w-lg rounded-2xl border border-border bg-card p-8 shadow-sm">
+          <h1 className="text-2xl font-bold font-display text-foreground">Scoring для приёмной комиссии</h1>
+          <p className="mt-3 text-sm text-muted-foreground">Проверяем учетную запись и права доступа.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background px-6">
+        <div className="w-full max-w-lg rounded-2xl border border-border bg-card p-8 shadow-sm space-y-4">
+          <div>
+            <h1 className="text-2xl font-bold font-display text-foreground">Доступ запрещен</h1>
+            <p className="mt-3 text-sm text-muted-foreground">
+              Страница Scoring доступна только для учетной записи {ADMIN_EMAIL}.
+            </p>
+          </div>
+          <div className="rounded-xl bg-muted p-4 text-sm text-foreground">
+            {currentUserEmail
+              ? `Сейчас выполнен вход под: ${currentUserEmail}`
+              : 'Сейчас пользователь не авторизован.'}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -197,7 +335,7 @@ const Scoring: React.FC = () => {
                       setIsAnalyzingVideo(true);
                       setError(null);
                       try {
-                        const res = await fetch('http://127.0.0.1:8000/analyze-video', {
+                        const res = await fetch('http://localhost:8000/analyze-video', {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({
@@ -265,7 +403,7 @@ const Scoring: React.FC = () => {
                             setIsAnalyzingEssay(true);
                             setError(null);
                             try {
-                              const res = await fetch('http://127.0.0.1:8000/analyze-essay', {
+                              const res = await fetch('http://localhost:8000/analyze-essay', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({
