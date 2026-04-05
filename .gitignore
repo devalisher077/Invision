@@ -12,6 +12,7 @@ ehthumbs.db
 Icon?
 .Spotlight-V100
 .Trashes
+.env
 
 # npm & yarn & bun
 npm-debug.log*
