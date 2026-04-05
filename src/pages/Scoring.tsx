@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabase';
 
 const ADMIN_EMAIL = 'admin@gmail.com';
 const FILE_URL_TTL_SECONDS = 60 * 60;
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? 'https://invbackend-production-fcd5.up.railway.app').replace(/\/$/, '');
 
 function collectEducationFileKeys(education: any): string[] {
   if (!education) return [];
@@ -335,7 +336,7 @@ const Scoring: React.FC = () => {
                       setIsAnalyzingVideo(true);
                       setError(null);
                       try {
-                        const res = await fetch('http://localhost:8000/analyze-video', {
+                        const res = await fetch(`${API_BASE_URL}/analyze-video`, {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({
@@ -403,7 +404,7 @@ const Scoring: React.FC = () => {
                             setIsAnalyzingEssay(true);
                             setError(null);
                             try {
-                              const res = await fetch('http://localhost:8000/analyze-essay', {
+                              const res = await fetch(`${API_BASE_URL}/analyze-essay`, {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({
