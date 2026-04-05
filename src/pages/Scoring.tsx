@@ -5,6 +5,20 @@ const ADMIN_EMAIL = 'admin@gmail.com';
 const FILE_URL_TTL_SECONDS = 60 * 60;
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? 'https://invbackend-production-fcd5.up.railway.app').replace(/\/$/, '');
 
+async function parseApiResponse(response: Response) {
+  const text = await response.text();
+
+  if (!text) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    return { rawText: text };
+  }
+}
+
 function collectEducationFileKeys(education: any): string[] {
   if (!education) return [];
 
@@ -344,8 +358,15 @@ const Scoring: React.FC = () => {
                             userId: userId,
                           }),
                         });
-                        const data = await res.json();
-                        if (!res.ok) throw new Error(data.error || 'Ошибка анализа');
+                        const data = await parseApiResponse(res);
+                        if (!res.ok) {
+                          throw new Error(
+                            data?.error ||
+                            data?.detail ||
+                            data?.rawText ||
+                            `HTTP ${res.status} ${res.statusText || 'Ошибка анализа'}`
+                          );
+                        }
 
                         if (userId) {
                           const { data: refreshedTranscripts, error: refreshError } = await supabase
@@ -413,8 +434,15 @@ const Scoring: React.FC = () => {
                                 }),
                               });
 
-                              const data = await res.json();
-                              if (!res.ok) throw new Error(data.error || 'Ошибка анализа эссе');
+                              const data = await parseApiResponse(res);
+                              if (!res.ok) {
+                                throw new Error(
+                                  data?.error ||
+                                  data?.detail ||
+                                  data?.rawText ||
+                                  `HTTP ${res.status} ${res.statusText || 'Ошибка анализа эссе'}`
+                                );
+                              }
 
                               if (userId) {
                                 const { data: refreshedTranscripts, error: refreshError } = await supabase
